@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FGC Player ID // Generator</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        fgc: {
+                            dark: '#0b0d12',
+                            card: '#131722',
+                            border: '#2a3142',
+                            accent: '#ff0055',
+                            neonBlue: '#00f0ff',
+                            gold: '#ffb700'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Google Fonts for Arcade & Fighting Game Aesthetics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Exo+2:wght@400;700;900&family=Orbitron:wght@500;700;900&family=Permanent+Marker&family=Press+Start+2P&family=Rajdhani:wght@600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Customizations and FGC Cut-corners */
+        body {
+            background-color: #08090d;
+            color: #e2e8f0;
+            font-family: 'Exo 2', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f121d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff0055;
+            border-radius: 3px;
+        }
+
+        /* Polygon Clip Paths for Arcade Aesthetic */
+        .clip-corner {
+            clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+        }
+        .clip-corner-sm {
+            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+        }
+        .clip-badge {
+            clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+        }
+
+        /* Scanline Overlay Effect */
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+        }
+
+        /* Card Scale Container */
+        .card-preview-wrapper {
+            perspective: 1000px;
+        }
+
+        /* Draggable Sticker Styling */
+        .sticker-interactive {
+            touch-action: none;
+            user-select: none;
+        }
+
+        /* Font Helper Classes for Dynamic Styling */
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .font-press-start { font-family: 'Press Start 2P', monospace; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .font-bangers { font-family: 'Bangers', cursive; }
+        .font-rajdhani { font-family: 'Rajdhani', sans-serif; }
+        .font-anton { font-family: 'Anton', sans-serif; }
+        .font-permanent { font-family: 'Permanent Marker', cursive; }
+        .font-teko { font-family: 'Teko', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-fgc-card border-b border-fgc-border px-4 py-3 sticky top-0 z-40 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-pink-600 to-amber-500 rounded flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-pink-500/30">
+                    <i class="fa-solid fa-gamepad"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400 font-orbitron">
+                        FGC PLAYER ID
+                    </h1>
+                    <p class="text-xs text-gray-400">Creador de Ficha de Presentación Arcade</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions -->
+            <div class="flex items-center gap-2">
+                <button id="reset-btn" class="px-3 py-1.5 text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Restablecer
+                </button>
+                <button id="download-btn" class="px-5 py-2 text-sm font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:from-pink-500 hover:to-indigo-500 text-white rounded shadow-lg shadow-pink-600/40 transition transform active:scale-95 flex items-center gap-2 font-orbitron uppercase tracking-wider">
+                    <i class="fa-solid fa-download"></i> Descargar Imagen
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT COLUMN: EDITING CONTROL PANEL (5 COLS) -->
+        <section class="lg:col-span-5 bg-fgc-card rounded-xl border border-fgc-border p-4 shadow-xl flex flex-col gap-4">
+            
+            <!-- CONTROLS TAB NAVIGATION -->
+            <div class="grid grid-cols-4 gap-1 p-1 bg-gray-900/80 rounded-lg text-xs font-bold border border-gray-800" id="tab-nav">
+                <button data-tab="tab-info" class="tab-btn active py-2 text-center rounded text-pink-400 bg-gray-800 shadow transition flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-user text-sm"></i> Perfil
+                </button>
+                <button data-tab="tab-mains" class="tab-btn py-2 text-center rounded text-gray-400 hover:text-gray-200 transition flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-hand-fist text-sm"></i> Mains
+                </button>
+                <button data-tab="tab-sticker" class="tab-btn py-2 text-center rounded text-gray-400 hover:text-gray-200 transition flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-icons text-sm"></i> Sticker
+                </button>
+                <button data-tab="tab-style" class="tab-btn py-2 text-center rounded text-gray-400 hover:text-gray-200 transition flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-palette text-sm"></i> Estilo
+                </button>
+            </div>
+
+            <!-- TAB CONTENTS -->
+            <div class="space-y-4 max-h-[calc(100vh-210px)] overflow-y-auto pr-1">
+
+                <!-- TAB 1: PERFIL / INFO GENERAL -->
+                <div id="tab-info" class="tab-content space-y-4">
+                    <h3 class="text-xs font-bold text-pink-400 uppercase tracking-widest border-b border-gray-800 pb-1">
+                        <i class="fa-solid fa-id-card mr-1"></i> Datos Principales
+                    </h3>
+
+                    <!-- GamerTag Input -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Nombre / GamerTag (Título)</label>
+                        <input type="text" id="input-gamertag" value="DAIGO_FAN_99" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition">
+                    </div>
+
+                    <!-- Profile Picture Upload -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Foto de Perfil (Avatar)</label>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full overflow-hidden border border-pink-500/50 bg-gray-900 shrink-0 flex items-center justify-center">
+                                <img id="preview-avatar-thumb" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+                            </div>
+                            <input type="file" id="input-avatar-file" accept="image/*" class="w-full text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-gray-800 file:text-pink-400 hover:file:bg-gray-700 cursor-pointer">
+                            <button id="remove-avatar-btn" class="text-xs text-red-400 hover:text-red-300 px-2.5 py-1.5 bg-gray-800 rounded border border-gray-700 shrink-0">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Subtitle / Region / Subheading -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Subtítulo / Región / Club</label>
+                        <input type="text" id="input-subtitle" value="LATAM // Ranked Challenger" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition">
+                    </div>
+
+                    <!-- Archetype Selector -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Arquetipo de Personaje Favorito</label>
+                        <select id="input-archetype" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition">
+                            <option value="Rushdown ⚡">Rushdown (Presión agresiva / Mixup)</option>
+                            <option value="Grappler 🤼">Grappler (Agarres de alto daño)</option>
+                            <option value="Zoner 🎯">Zoner (Control de espacio / Proyectiles)</option>
+                            <option value="Shoto 🥋">Shoto (Equilibrado / Fireball + Uppercut)</option>
+                            <option value="Setplay 🕸️">Setplay / Okizeme (Trampas / Setup)</option>
+                            <option value="Puppeteer 👯">Puppeteer (Control doble personaje)</option>
+                            <option value="Stance 🔄">Stance (Cambio de posturas)</option>
+                            <option value="Big Body 🛡️">Big Body / Juggernaut (Super Armor)</option>
+                            <option value="All-Rounder ⚔️">All-Rounder (Versátil)</option>
+                            <option value="Mixup Machine 🎲">Mixup Machine (50/50 Impredecible)</option>
+                        </select>
+                    </div>
+
+                    <!-- Player Quote / Bio -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Cita del Jugador / Descripción ("About Me")</label>
+                        <textarea id="input-quote" rows="3" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition" placeholder="Escribe tu frase icónica o descripción...">"No presiono botones a lo loco, calculo la ventaja de cuadros con el corazón."</textarea>
+                    </div>
+
+                    <!-- Favorite Games Input & Quick Chips -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Juegos Principales (Separados por coma)</label>
+                        <input type="text" id="input-games" value="Street Fighter 6, Tekken 8, Guilty Gear -Strive-" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition mb-2">
+                        
+                        <span class="text-[11px] text-gray-400 block mb-1">Añadir rápidamente:</span>
+                        <div class="flex flex-wrap gap-1.5" id="quick-games-list">
+                            <!-- Game tags appended via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PERSONAJES MAINS -->
+                <div id="tab-mains" class="tab-content space-y-4 hidden">
+                    <div class="flex justify-between items-center border-b border-gray-800 pb-1">
+                        <h3 class="text-xs font-bold text-pink-400 uppercase tracking-widest">
+                            <i class="fa-solid fa-users mr-1"></i> Personajes Principales (Mains)
+                        </h3>
+                        <button id="add-main-btn" class="text-xs bg-pink-600 hover:bg-pink-500 text-white font-bold px-2 py-1 rounded transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Añadir
+                        </button>
+                    </div>
+
+                    <div id="mains-list-container" class="space-y-3">
+                        <!-- Dynamic Mains Cards generated by JS -->
+                    </div>
+                </div>
+
+                <!-- TAB 3: STICKER / IMAGEN PERSONALIZADA -->
+                <div id="tab-sticker" class="tab-content space-y-4 hidden">
+                    <h3 class="text-xs font-bold text-pink-400 uppercase tracking-widest border-b border-gray-800 pb-1">
+                        <i class="fa-solid fa-image mr-1"></i> Sticker / Imagen desde Tu PC/Teléfono
+                    </h3>
+
+                    <!-- Image File Input -->
+                    <div class="border-2 border-dashed border-gray-700 hover:border-pink-500 rounded-lg p-4 text-center cursor-pointer transition bg-gray-900/50" id="drop-zone">
+                        <input type="file" id="sticker-file-input" accept="image/*" class="hidden">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-pink-400 mb-1 block"></i>
+                        <span class="text-xs text-gray-300 font-semibold block">Toca o arrastra una imagen aquí</span>
+                        <span class="text-[10px] text-gray-500">Formatos PNG (fondo transparente ideal), JPG, WebP</span>
+                    </div>
+
+                    <div id="sticker-controls" class="space-y-3 bg-gray-900/60 p-3 rounded-lg border border-gray-800">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-semibold text-gray-300">Ajustes del Sticker</span>
+                            <button id="remove-sticker-btn" class="text-[11px] text-red-400 hover:text-red-300 transition">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+
+                        <!-- Scale Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Tamaño / Escala</span>
+                                <span id="val-scale">100%</span>
+                            </div>
+                            <input type="range" id="slider-scale" min="20" max="250" value="100" class="w-full accent-pink-500">
+                        </div>
+
+                        <!-- Rotation Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Rotación</span>
+                                <span id="val-rotate">0°</span>
+                            </div>
+                            <input type="range" id="slider-rotate" min="-180" max="180" value="0" class="w-full accent-pink-500">
+                        </div>
+
+                        <!-- Opacity Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Opacidad</span>
+                                <span id="val-opacity">100%</span>
+                            </div>
+                            <input type="range" id="slider-opacity" min="10" max="100" value="100" class="w-full accent-pink-500">
+                        </div>
+
+                        <!-- Position Slider X / Y -->
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <div>
+                                <label class="text-[11px] text-gray-400 block mb-1">Posición X</label>
+                                <input type="range" id="slider-posx" min="0" max="100" value="80" class="w-full accent-pink-500">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-gray-400 block mb-1">Posición Y</label>
+                                <input type="range" id="slider-posy" min="0" max="100" value="50" class="w-full accent-pink-500">
+                            </div>
+                        </div>
+
+                        <p class="text-[10px] text-gray-500 italic text-center mt-1">
+                            💡 Tip: También puedes arrastrar el sticker directamente sobre la tarjeta con el mouse o dedo.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TAB 4: ESTILO Y DISEÑO -->
+                <div id="tab-style" class="tab-content space-y-4 hidden">
+                    <h3 class="text-xs font-bold text-pink-400 uppercase tracking-widest border-b border-gray-800 pb-1">
+                        <i class="fa-solid fa-palette mr-1"></i> Personalización Visual
+                    </h3>
+
+                    <!-- Preset Themes -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1.5">Temas Preestablecidos</label>
+                        <div class="grid grid-cols-3 gap-1.5" id="theme-presets-container">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Custom Card Background Controls -->
+                    <div class="space-y-2 pt-2 border-t border-gray-800">
+                        <span class="text-xs font-semibold text-gray-300 block">Fondo de la Tarjeta</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[11px] text-gray-400 block mb-1">Color Principal</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="color" id="color-bg1" value="#111827" class="w-8 h-8 rounded bg-transparent cursor-pointer border border-gray-700">
+                                    <span class="text-xs text-gray-400 font-mono" id="hex-bg1">#111827</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-gray-400 block mb-1">Color Secundario</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="color" id="color-bg2" value="#881337" class="w-8 h-8 rounded bg-transparent cursor-pointer border border-gray-700">
+                                    <span class="text-xs text-gray-400 font-mono" id="hex-bg2">#881337</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Textbox & Accent Colors -->
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-800">
+                        <div>
+                            <label class="text-[11px] text-gray-400 block mb-1">Fondo de Textos</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="color-boxbg" value="#0f172a" class="w-8 h-8 rounded bg-transparent cursor-pointer border border-gray-700">
+                                <span class="text-xs text-gray-400 font-mono" id="hex-boxbg">#0f172a</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-gray-400 block mb-1">Detalles Neón / Acento</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="color-accent" value="#ff0055" class="w-8 h-8 rounded bg-transparent cursor-pointer border border-gray-700">
+                                <span class="text-xs text-gray-400 font-mono" id="hex-accent">#ff0055</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Box Opacity -->
+                    <div>
+                        <div class="flex justify-between text-xs text-gray-400 mb-1">
+                            <span>Opacidad Cuadro de Texto</span>
+                            <span id="val-box-opacity">85%</span>
+                        </div>
+                        <input type="range" id="slider-box-opacity" min="10" max="100" value="85" class="w-full accent-pink-500">
+                    </div>
+
+                    <!-- Font Family Selector -->
+                    <div class="pt-2 border-t border-gray-800">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Tipografía Principal</label>
+                        <select id="select-font" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-pink-500 transition font-orbitron">
+                            <option value="font-bebas">Bebas Neue (Arcade Impact)</option>
+                            <option value="font-orbitron" selected>Orbitron (Cyber Tech)</option>
+                            <option value="font-press-start">Press Start 2P (Retro 8-Bit)</option>
+                            <option value="font-bangers">Bangers (Comic / Versus)</option>
+                            <option value="font-rajdhani font-bold">Rajdhani (Clean Esports)</option>
+                            <option value="font-anton">Anton (Heavy Bold)</option>
+                            <option value="font-permanent">Permanent Marker (Graffiti / Street SF6)</option>
+                            <option value="font-teko">Teko (Tall Modern)</option>
+                        </select>
+                    </div>
+
+                    <!-- Font Sizes -->
+                    <div class="space-y-2 pt-2 border-t border-gray-800">
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Tamaño Nombre / Título</span>
+                                <span id="val-title-size">100%</span>
+                            </div>
+                            <input type="range" id="slider-title-size" min="70" max="150" value="100" class="w-full accent-pink-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Tamaño Texto General</span>
+                                <span id="val-text-size">100%</span>
+                            </div>
+                            <input type="range" id="slider-text-size" min="80" max="130" value="100" class="w-full accent-pink-500">
+                        </div>
+                    </div>
+
+                    <!-- Extras: Scanline overlay toggle -->
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-800">
+                        <span class="text-xs font-semibold text-gray-300">Efecto CRT Arcade Scanlines</span>
+                        <input type="checkbox" id="toggle-scanlines" checked class="w-4 h-4 accent-pink-500 cursor-pointer">
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: REAL-TIME CARD PREVIEW & CANVAS (7 COLS) -->
+        <section class="lg:col-span-7 flex flex-col items-center sticky top-20">
+            
+            <!-- PREVIEW BAR TOOLBAR -->
+            <div class="w-full bg-fgc-card border border-fgc-border rounded-t-xl px-4 py-2 flex justify-between items-center text-xs text-gray-400">
+                <div class="flex items-center gap-2 font-mono">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                    <span>VISTA PREVIA EN TIEMPO REAL</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[11px] bg-gray-800 px-2 py-0.5 rounded text-gray-300 font-mono">1200 x 675 px</span>
+                </div>
+            </div>
+
+            <!-- CARD CANVAS WRAPPER FOR RESPONSIVE RESIZING -->
+            <div class="w-full bg-black/80 border-x border-b border-fgc-border rounded-b-xl p-2 md:p-6 flex items-center justify-center overflow-hidden min-h-[380px] relative">
+                
+                <!-- CARD SCALE HOLDER -->
+                <div id="card-scale-holder" class="w-full flex justify-center items-center">
+                    
+                    <!-- THE ACTUAL PLAYER ID CARD (Export Target) -->
+                    <div id="player-card" class="relative w-[1200px] h-[675px] shrink-0 clip-corner overflow-hidden shadow-2xl transition-all duration-300 border-2 select-none" style="border-color: #ff0055; background: linear-gradient(135deg, #111827 0%, #881337 100%); font-family: 'Orbitron', sans-serif;">
+                        
+                        <!-- CRT Scanline Layer Overlay -->
+                        <div id="card-scanline-layer" class="absolute inset-0 scanlines pointer-events-none z-10 opacity-60"></div>
+
+                        <!-- Card Decorative Grid Lines -->
+                        <div class="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px] opacity-10 pointer-events-none"></div>
+
+                        <!-- TOP HEADER BAR -->
+                        <div class="relative z-20 px-8 pt-6 pb-2 flex justify-between items-center border-b border-white/10">
+                            <div class="flex items-center gap-4">
+                                <!-- Profile Picture / Avatar -->
+                                <div id="card-avatar-wrapper" class="w-16 h-16 rounded-full overflow-hidden border-2 shrink-0 bg-black/60 shadow-lg shadow-pink-500/20" style="border-color: #ff0055;">
+                                    <img id="card-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-full h-full object-cover">
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-2 py-0.5 bg-pink-600 text-white font-black text-[10px] tracking-widest uppercase clip-badge" id="card-badge-fgc">
+                                            FGC PLAYER PASSPORT
+                                        </span>
+                                        <span class="text-xs text-cyan-400 font-mono tracking-widest uppercase" id="card-subtitle-display">
+                                            LATAM // Ranked Challenger
+                                        </span>
+                                    </div>
+
+                                    <!-- GamerTag -->
+                                    <h1 id="card-gamertag-display" class="text-4xl md:text-5xl font-black text-white tracking-wider uppercase mt-0.5 drop-shadow-[0_4px_10px_rgba(255,0,85,0.6)]" style="color: #ffffff;">
+                                        DAIGO_FAN_99
+                                    </h1>
+                                </div>
+                            </div>
+
+                            <!-- Archetype Emblem Badge -->
+                            <div class="text-right">
+                                <div class="text-[10px] text-gray-400 uppercase tracking-widest font-mono">Arquetipo</div>
+                                <div id="card-archetype-display" class="inline-block mt-0.5 px-3 py-1 bg-black/60 border text-pink-400 font-bold text-xs md:text-sm tracking-wider uppercase clip-corner-sm backdrop-blur-md" style="border-color: #ff0055;">
+                                    Rushdown ⚡
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD BODY CONTENT -->
+                        <div class="relative z-20 p-8 grid grid-cols-12 gap-6 h-[calc(100%-100px)]">
+                            
+                            <!-- LEFT COLUMN: MAINS SHOWCASE (5 COLS) -->
+                            <div class="col-span-5 flex flex-col justify-between">
+                                <div>
+                                    <div class="text-xs font-black text-pink-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-crosshairs"></i> PERSONAJES MAINS
+                                    </div>
+
+                                    <!-- Mains Cards List Container -->
+                                    <div id="card-mains-container" class="space-y-2.5">
+                                        <!-- Dynamically Generated Main Fighter Cards -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT COLUMN: GAMES + QUOTE / ABOUT ME (7 COLS) -->
+                            <div class="col-span-7 flex flex-col justify-between">
+                                
+                                <div class="space-y-3 flex-1 flex flex-col justify-center">
+                                    <!-- Favorite Games List Tags Directly Above Quote Box -->
+                                    <div>
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-mono">
+                                            Juegos Principales
+                                        </div>
+                                        <div id="card-games-container" class="flex flex-wrap gap-1.5">
+                                            <!-- Dynamically generated game chips -->
+                                        </div>
+                                    </div>
+
+                                    <!-- PLAYER QUOTE BOX -->
+                                    <div id="card-quote-box" class="p-5 rounded-lg border border-pink-500/30 relative flex-1 flex flex-col justify-center clip-corner-sm backdrop-blur-md transition-all" style="background-color: rgba(15, 23, 42, 0.85);">
+                                        <i class="fa-solid fa-quote-left absolute top-3 left-3 text-pink-500/20 text-3xl"></i>
+                                        <div class="relative z-10">
+                                            <div class="text-[10px] font-bold text-pink-400 uppercase tracking-widest mb-1 font-mono">
+                                                // PLAYER QUOTE / ABOUT ME
+                                            </div>
+                                            <p id="card-quote-display" class="text-sm md:text-base italic text-gray-200 font-medium leading-relaxed">
+                                                "No presiono botones a lo loco, calculo la ventaja de cuadros con el corazón."
+                                            </p>
+                                        </div>
+                                        <i class="fa-solid fa-quote-right absolute bottom-3 right-3 text-pink-500/20 text-3xl"></i>
+                                    </div>
+                                </div>
+
+                                <!-- BOTTOM DECORATIVE STAMP BAR -->
+                                <div class="mt-3 pt-2 border-t border-white/10 flex justify-between items-center text-[10px] text-gray-400 font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-block w-2 h-2 rounded-full bg-pink-500"></span>
+                                        <span>FGC CREATOR CARD v2.0</span>
+                                    </div>
+                                    <div class="tracking-widest opacity-60">READY FOR THE NEXT BATTLE</div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- FLOATING CUSTOM STICKER / OVERLAY -->
+                        <div id="card-sticker-layer" class="absolute z-30 cursor-grab active:cursor-grabbing sticker-interactive transition-opacity" style="top: 50%; left: 80%; transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1;">
+                            <img id="card-sticker-img" src="" alt="Sticker" class="max-w-[300px] max-h-[300px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] hidden">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-fgc-card border-t border-fgc-border py-4 text-center text-xs text-gray-500 mt-auto">
+        <p>FGC Player ID Generator &bull; Diseñado para la comunidad de Juegos de Pelea</p>
+    </footer>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-pink-600 text-white px-4 py-2.5 rounded-lg shadow-2xl font-bold text-xs flex items-center gap-2 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 z-50">
+        <i class="fa-solid fa-circle-check text-base"></i>
+        <span id="toast-msg">Notificación</span>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- CONSTANTS ---
+        const DEFAULT_AVATARS = [
+            "https://images.unsplash.com/photo-1563089145-599997674d42?w=150&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&auto=format&fit=crop&q=80"
+        ];
+
+        const SUGGESTED_GAMES = [
+            "Street Fighter 6", "Tekken 8", "Guilty Gear -Strive-", "Mortal Kombat 1", 
+            "Dragon Ball FighterZ", "Super Smash Bros. Ultimate", "Granblue Fantasy Versus", "Under Night In-Birth II", "Marvel vs. Capcom 3", "KOF XV"
+        ];
+
+        const THEMES = [
+            { name: "SF6 Drive", bg1: "#111827", bg2: "#881337", boxBg: "#0f172a", accent: "#ff0055" },
+            { name: "Tekken Electric", bg1: "#0a0a1a", bg2: "#1e1b4b", boxBg: "#090d16", accent: "#00f0ff" },
+            { name: "Guilty Gear", bg1: "#180e03", bg2: "#7c2d12", boxBg: "#120a02", accent: "#f97316" },
+            { name: "Cyberpunk Neon", bg1: "#030712", bg2: "#4c1d95", boxBg: "#0f172a", accent: "#00ff99" },
+            { name: "Dark Synth", bg1: "#09090b", bg2: "#27272a", boxBg: "#18181b", accent: "#e11d48" },
+            { name: "Gold Champion", bg1: "#1c1917", bg2: "#78350f", boxBg: "#0c0a09", accent: "#eab308" }
+        ];
+
+        // --- INITIAL STATE MANAGEMENT ---
+        const state = {
+            gamertag: "DAIGO_FAN_99",
+            subtitle: "LATAM // Ranked Challenger",
+            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+            archetype: "Rushdown ⚡",
+            quote: '"No presiono botones a lo loco, calculo la ventaja de cuadros con el corazón."',
+            games: ["Street Fighter 6", "Tekken 8", "Guilty Gear -Strive-"],
+            mains: [
+                { id: 1, name: "Juri", img: "https://images.unsplash.com/photo-1563089145-599997674d42?w=150&auto=format&fit=crop&q=80" },
+                { id: 2, name: "Sol Badguy", img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=150&auto=format&fit=crop&q=80" }
+            ],
+            sticker: {
+                src: "",
+                scale: 1,
+                rotate: 0,
+                opacity: 1,
+                posX: 78,
+                posY: 55
+            },
+            style: {
+                bg1: "#111827",
+                bg2: "#881337",
+                boxBg: "#0f172a",
+                accent: "#ff0055",
+                boxOpacity: 0.85,
+                fontFamily: "font-orbitron",
+                titleSize: 1,
+                textSize: 1,
+                scanlines: true
+            }
+        };
+
+        // --- DOM ELEMENT REFERENCES ---
+        const cardAvatarWrapper = document.getElementById('card-avatar-wrapper');
+        const cardAvatarImg = document.getElementById('card-avatar-img');
+        const previewAvatarThumb = document.getElementById('preview-avatar-thumb');
+        const cardGamertag = document.getElementById('card-gamertag-display');
+        const cardSubtitle = document.getElementById('card-subtitle-display');
+        const cardArchetype = document.getElementById('card-archetype-display');
+        const cardQuote = document.getElementById('card-quote-display');
+        const playerCard = document.getElementById('player-card');
+        const cardQuoteBox = document.getElementById('card-quote-box');
+        const cardScanlineLayer = document.getElementById('card-scanline-layer');
+        const cardMainsContainer = document.getElementById('card-mains-container');
+        const cardGamesContainer = document.getElementById('card-games-container');
+        const cardStickerLayer = document.getElementById('card-sticker-layer');
+        const cardStickerImg = document.getElementById('card-sticker-img');
+
+        const inputGamertag = document.getElementById('input-gamertag');
+        const inputSubtitle = document.getElementById('input-subtitle');
+        const inputArchetype = document.getElementById('input-archetype');
+        const inputQuote = document.getElementById('input-quote');
+        const inputGames = document.getElementById('input-games');
+
+        function initInputListeners() {
+            if (inputGamertag) {
+                inputGamertag.addEventListener('input', (e) => {
+                    state.gamertag = e.target.value;
+                    renderCard();
+                });
+            }
+            if (inputSubtitle) {
+                inputSubtitle.addEventListener('input', (e) => {
+                    state.subtitle = e.target.value;
+                    renderCard();
+                });
+            }
+            if (inputArchetype) {
+                inputArchetype.addEventListener('change', (e) => {
+                    state.archetype = e.target.value;
+                    renderCard();
+                });
+            }
+            if (inputQuote) {
+                inputQuote.addEventListener('input', (e) => {
+                    state.quote = e.target.value;
+                    renderCard();
+                });
+            }
+            if (inputGames) {
+                inputGames.addEventListener('input', (e) => {
+                    state.games = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                    renderCard();
+                });
+            }
+        }
+
+        function renderCard() {
+            if (cardGamertag) cardGamertag.textContent = state.gamertag || "GAMERTAG";
+            if (cardSubtitle) cardSubtitle.textContent = state.subtitle || "";
+            if (cardArchetype) cardArchetype.textContent = state.archetype;
+            if (cardQuote) cardQuote.textContent = state.quote ? `"${state.quote.replace(/^"|"$/g, '')}"` : '""';
+
+            if (state.avatar) {
+                if (cardAvatarImg) cardAvatarImg.src = state.avatar;
+                if (previewAvatarThumb) previewAvatarThumb.src = state.avatar;
+                if (cardAvatarWrapper) cardAvatarWrapper.style.display = 'block';
+            } else {
+                if (cardAvatarWrapper) cardAvatarWrapper.style.display = 'none';
+            }
+            if (cardAvatarWrapper) cardAvatarWrapper.style.borderColor = state.style.accent;
+
+            if (playerCard) {
+                playerCard.style.background = `linear-gradient(135deg, ${state.style.bg1} 0%, ${state.style.bg2} 100%)`;
+                playerCard.style.borderColor = state.style.accent;
+                playerCard.className = playerCard.className.replace(/font-\S+/g, '');
+                playerCard.classList.add(state.style.fontFamily);
+            }
+
+            if (cardQuoteBox) {
+                const boxRgb = hexToRgb(state.style.boxBg);
+                cardQuoteBox.style.backgroundColor = `rgba(${boxRgb.r}, ${boxRgb.g}, ${boxRgb.b}, ${state.style.boxOpacity})`;
+                cardQuoteBox.style.borderColor = `${state.style.accent}55`;
+            }
+
+            if (cardArchetype) {
+                cardArchetype.style.borderColor = state.style.accent;
+                cardArchetype.style.color = state.style.accent;
+            }
+
+            if (cardGamertag) cardGamertag.style.fontSize = `${3 * state.style.titleSize}rem`;
+            if (cardQuote) cardQuote.style.fontSize = `${0.95 * state.style.textSize}rem`;
+
+            if (cardScanlineLayer) cardScanlineLayer.style.display = state.style.scanlines ? 'block' : 'none';
+
+            renderGames();
+            renderMains();
+            renderSticker();
+        }
+
+        function renderGames() {
+            if (!cardGamesContainer) return;
+            cardGamesContainer.innerHTML = '';
+            state.games.forEach(game => {
+                if (!game.trim()) return;
+                const chip = document.createElement('span');
+                chip.className = "px-2.5 py-1 text-xs font-bold text-white rounded bg-white/10 border border-white/20 uppercase tracking-wider backdrop-blur-sm";
+                chip.style.borderColor = `${state.style.accent}88`;
+                chip.textContent = game.trim();
+                cardGamesContainer.appendChild(chip);
+            });
+        }
+
+        function renderMains() {
+            if (!cardMainsContainer) return;
+            cardMainsContainer.innerHTML = '';
+            state.mains.forEach((main) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center gap-3 p-2.5 bg-black/50 border border-white/10 rounded-lg backdrop-blur-md clip-corner-sm transition hover:border-pink-500/50";
+                
+                item.innerHTML = `
+                    <div class="w-12 h-12 rounded overflow-hidden border border-white/20 shrink-0 bg-gray-900 relative">
+                        <img src="${main.img || DEFAULT_AVATARS[0]}" alt="${main.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-0 flex items-center">
+                        <span class="text-sm font-black text-white truncate uppercase tracking-wider">${main.name || 'Fighter'}</span>
+                    </div>
+                `;
+                cardMainsContainer.appendChild(item);
+            });
+        }
+
+        function renderSticker() {
+            if (!cardStickerImg || !cardStickerLayer) return;
+            if (state.sticker.src) {
+                cardStickerImg.src = state.sticker.src;
+                cardStickerImg.classList.remove('hidden');
+                cardStickerLayer.style.left = `${state.sticker.posX}%`;
+                cardStickerLayer.style.top = `${state.sticker.posY}%`;
+                cardStickerLayer.style.transform = `translate(-50%, -50%) scale(${state.sticker.scale}) rotate(${state.sticker.rotate}deg)`;
+                cardStickerLayer.style.opacity = state.sticker.opacity;
+            } else {
+                cardStickerImg.classList.add('hidden');
+                cardStickerImg.src = '';
+            }
+        }
+
+        function renderMainsEditList() {
+            const container = document.getElementById('mains-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            state.mains.forEach((main, index) => {
+                const card = document.createElement('div');
+                card.className = "p-3 bg-gray-900/80 border border-gray-800 rounded-lg space-y-2";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-300">Personaje #${index + 1}</span>
+                        <button onclick="removeMain(${main.id})" class="text-xs text-red-400 hover:text-red-300">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <input type="text" value="${main.name}" onchange="updateMainName(${main.id}, this.value)" placeholder="Nombre del Personaje" class="w-full bg-gray-800 border border-gray-700 rounded px-2.5 py-1.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 block mb-1">Imagen / Retrato (Opcional)</label>
+                        <input type="file" accept="image/*" onchange="handleMainImageUpload(event, ${main.id})" class="text-[10px] text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-pink-400">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Profile Picture Upload Listeners
+        const avatarFileInput = document.getElementById('input-avatar-file');
+        if (avatarFileInput) {
+            avatarFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    state.avatar = event.target.result;
+                    renderCard();
+                    showToast("Foto de perfil actualizada");
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        const removeAvatarBtn = document.getElementById('remove-avatar-btn');
+        if (removeAvatarBtn) {
+            removeAvatarBtn.addEventListener('click', () => {
+                state.avatar = "";
+                renderCard();
+                showToast("Foto de perfil eliminada");
+            });
+        }
+
+        // Quick Games Buttons
+        function initQuickGames() {
+            const container = document.getElementById('quick-games-list');
+            if (!container) return;
+            container.innerHTML = '';
+            SUGGESTED_GAMES.forEach(game => {
+                const btn = document.createElement('button');
+                btn.className = "px-2 py-0.5 text-[10px] bg-gray-800 hover:bg-pink-600 text-gray-300 hover:text-white rounded transition";
+                btn.textContent = `+ ${game}`;
+                btn.addEventListener('click', () => {
+                    if (!state.games.includes(game)) {
+                        state.games.push(game);
+                        if (inputGames) inputGames.value = state.games.join(', ');
+                        renderCard();
+                    }
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        // Mains Management
+        const addMainBtn = document.getElementById('add-main-btn');
+        if (addMainBtn) {
+            addMainBtn.addEventListener('click', () => {
+                if(state.mains.length >= 4) {
+                    showToast("Máximo 4 personajes principales", "fa-triangle-exclamation");
+                    return;
+                }
+                const newId = Date.now();
+                state.mains.push({
+                    id: newId,
+                    name: "Fighter",
+                    img: DEFAULT_AVATARS[state.mains.length % DEFAULT_AVATARS.length]
+                });
+                renderMainsEditList();
+                renderCard();
+            });
+        }
+
+        window.removeMain = function(id) {
+            if(state.mains.length <= 1) {
+                showToast("Debes conservar al menos 1 personaje", "fa-triangle-exclamation");
+                return;
+            }
+            state.mains = state.mains.filter(m => m.id !== id);
+            renderMainsEditList();
+            renderCard();
+        };
+
+        window.updateMainName = function(id, name) {
+            const main = state.mains.find(m => m.id === id);
+            if(main) { main.name = name; renderCard(); }
+        };
+
+        window.handleMainImageUpload = function(e, id) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const main = state.mains.find(m => m.id === id);
+                if(main) {
+                    main.img = event.target.result;
+                    renderMainsEditList();
+                    renderCard();
+                    showToast("Retrato actualizado");
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Sticker Upload & Controls
+        const stickerFileInput = document.getElementById('sticker-file-input');
+        const dropZone = document.getElementById('drop-zone');
+
+        if (dropZone && stickerFileInput) {
+            dropZone.addEventListener('click', () => stickerFileInput.click());
+            stickerFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) handleStickerFile(file);
+            });
+        }
+
+        function handleStickerFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.sticker.src = e.target.result;
+                renderCard();
+                showToast("Sticker añadido con éxito");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Sliders for Sticker
+        const sliderScale = document.getElementById('slider-scale');
+        if (sliderScale) {
+            sliderScale.addEventListener('input', (e) => {
+                state.sticker.scale = e.target.value / 100;
+                document.getElementById('val-scale').textContent = `${e.target.value}%`;
+                renderCard();
+            });
+        }
+
+        const sliderRotate = document.getElementById('slider-rotate');
+        if (sliderRotate) {
+            sliderRotate.addEventListener('input', (e) => {
+                state.sticker.rotate = e.target.value;
+                document.getElementById('val-rotate').textContent = `${e.target.value}°`;
+                renderCard();
+            });
+        }
+
+        const sliderOpacity = document.getElementById('slider-opacity');
+        if (sliderOpacity) {
+            sliderOpacity.addEventListener('input', (e) => {
+                state.sticker.opacity = e.target.value / 100;
+                document.getElementById('val-opacity').textContent = `${e.target.value}%`;
+                renderCard();
+            });
+        }
+
+        const sliderPosx = document.getElementById('slider-posx');
+        if (sliderPosx) {
+            sliderPosx.addEventListener('input', (e) => {
+                state.sticker.posX = e.target.value;
+                renderCard();
+            });
+        }
+
+        const sliderPosy = document.getElementById('slider-posy');
+        if (sliderPosy) {
+            sliderPosy.addEventListener('input', (e) => {
+                state.sticker.posY = e.target.value;
+                renderCard();
+            });
+        }
+
+        const removeStickerBtn = document.getElementById('remove-sticker-btn');
+        if (removeStickerBtn) {
+            removeStickerBtn.addEventListener('click', () => {
+                state.sticker.src = "";
+                renderCard();
+                showToast("Sticker eliminado");
+            });
+        }
+
+        // Draggable Sticker Implementation
+        let isDraggingSticker = false;
+        
+        if (cardStickerLayer) {
+            cardStickerLayer.addEventListener('mousedown', startDragSticker);
+            cardStickerLayer.addEventListener('touchstart', startDragSticker, {passive: true});
+        }
+
+        function startDragSticker(e) {
+            if(!state.sticker.src) return;
+            isDraggingSticker = true;
+            document.addEventListener('mousemove', onDragSticker);
+            document.addEventListener('touchmove', onDragSticker, {passive: false});
+            document.addEventListener('mouseup', stopDragSticker);
+            document.addEventListener('touchend', stopDragSticker);
+        }
+
+        function onDragSticker(e) {
+            if (!isDraggingSticker || !playerCard) return;
+            const rect = playerCard.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            let x = ((clientX - rect.left) / rect.width) * 100;
+            let y = ((clientY - rect.top) / rect.height) * 100;
+
+            x = Math.max(0, Math.min(100, x));
+            y = Math.max(0, Math.min(100, y));
+
+            state.sticker.posX = Math.round(x);
+            state.sticker.posY = Math.round(y);
+
+            const sX = document.getElementById('slider-posx');
+            const sY = document.getElementById('slider-posy');
+            if (sX) sX.value = state.sticker.posX;
+            if (sY) sY.value = state.sticker.posY;
+
+            renderCard();
+        }
+
+        function stopDragSticker() {
+            isDraggingSticker = false;
+            document.removeEventListener('mousemove', onDragSticker);
+            document.removeEventListener('touchmove', onDragSticker);
+        }
+
+        // Style & Theme Controls
+        function initThemePresets() {
+            const container = document.getElementById('theme-presets-container');
+            if (!container) return;
+            container.innerHTML = '';
+            THEMES.forEach(theme => {
+                const btn = document.createElement('button');
+                btn.className = "p-2 bg-gray-900 border border-gray-800 rounded text-left hover:border-pink-500 transition group flex flex-col gap-1";
+                btn.innerHTML = `
+                    <div class="flex h-3 w-full rounded overflow-hidden">
+                        <div class="w-1/3" style="background:${theme.bg1}"></div>
+                        <div class="w-1/3" style="background:${theme.bg2}"></div>
+                        <div class="w-1/3" style="background:${theme.accent}"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-400 group-hover:text-white truncate">${theme.name}</span>
+                `;
+                btn.addEventListener('click', () => {
+                    state.style.bg1 = theme.bg1;
+                    state.style.bg2 = theme.bg2;
+                    state.style.accent = theme.accent;
+                    state.style.boxBg = theme.boxBg;
+                    updateColorInputDisplays();
+                    renderCard();
+                    showToast(`Tema aplicable: ${theme.name}`);
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        function updateColorInputDisplays() {
+            const cBg1 = document.getElementById('color-bg1');
+            const hBg1 = document.getElementById('hex-bg1');
+            if (cBg1) cBg1.value = state.style.bg1;
+            if (hBg1) hBg1.textContent = state.style.bg1;
+
+            const cBg2 = document.getElementById('color-bg2');
+            const hBg2 = document.getElementById('hex-bg2');
+            if (cBg2) cBg2.value = state.style.bg2;
+            if (hBg2) hBg2.textContent = state.style.bg2;
+
+            const cBox = document.getElementById('color-boxbg');
+            const hBox = document.getElementById('hex-boxbg');
+            if (cBox) cBox.value = state.style.boxBg;
+            if (hBox) hBox.textContent = state.style.boxBg;
+
+            const cAcc = document.getElementById('color-accent');
+            const hAcc = document.getElementById('hex-accent');
+            if (cAcc) cAcc.value = state.style.accent;
+            if (hAcc) hAcc.textContent = state.style.accent;
+        }
+
+        const colorBg1 = document.getElementById('color-bg1');
+        if (colorBg1) {
+            colorBg1.addEventListener('input', (e) => {
+                state.style.bg1 = e.target.value;
+                document.getElementById('hex-bg1').textContent = e.target.value;
+                renderCard();
+            });
+        }
+
+        const colorBg2 = document.getElementById('color-bg2');
+        if (colorBg2) {
+            colorBg2.addEventListener('input', (e) => {
+                state.style.bg2 = e.target.value;
+                document.getElementById('hex-bg2').textContent = e.target.value;
+                renderCard();
+            });
+        }
+
+        const colorBoxbg = document.getElementById('color-boxbg');
+        if (colorBoxbg) {
+            colorBoxbg.addEventListener('input', (e) => {
+                state.style.boxBg = e.target.value;
+                document.getElementById('hex-boxbg').textContent = e.target.value;
+                renderCard();
+            });
+        }
+
+        const colorAccent = document.getElementById('color-accent');
+        if (colorAccent) {
+            colorAccent.addEventListener('input', (e) => {
+                state.style.accent = e.target.value;
+                document.getElementById('hex-accent').textContent = e.target.value;
+                renderCard();
+            });
+        }
+
+        const sliderBoxOpacity = document.getElementById('slider-box-opacity');
+        if (sliderBoxOpacity) {
+            sliderBoxOpacity.addEventListener('input', (e) => {
+                state.style.boxOpacity = e.target.value / 100;
+                document.getElementById('val-box-opacity').textContent = `${e.target.value}%`;
+                renderCard();
+            });
+        }
+
+        const selectFont = document.getElementById('select-font');
+        if (selectFont) {
+            selectFont.addEventListener('change', (e) => {
+                state.style.fontFamily = e.target.value;
+                renderCard();
+            });
+        }
+
+        const sliderTitleSize = document.getElementById('slider-title-size');
+        if (sliderTitleSize) {
+            sliderTitleSize.addEventListener('input', (e) => {
+                state.style.titleSize = e.target.value / 100;
+                document.getElementById('val-title-size').textContent = `${e.target.value}%`;
+                renderCard();
+            });
+        }
+
+        const sliderTextSize = document.getElementById('slider-text-size');
+        if (sliderTextSize) {
+            sliderTextSize.addEventListener('input', (e) => {
+                state.style.textSize = e.target.value / 100;
+                document.getElementById('val-text-size').textContent = `${e.target.value}%`;
+                renderCard();
+            });
+        }
+
+        const toggleScanlines = document.getElementById('toggle-scanlines');
+        if (toggleScanlines) {
+            toggleScanlines.addEventListener('change', (e) => {
+                state.style.scanlines = e.target.checked;
+                renderCard();
+            });
+        }
+
+        // Tabs Handler
+        document.querySelectorAll('#tab-nav .tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#tab-nav .tab-btn').forEach(b => {
+                    b.classList.remove('active', 'text-pink-400', 'bg-gray-800', 'shadow');
+                    b.classList.add('text-gray-400');
+                });
+                btn.classList.add('active', 'text-pink-400', 'bg-gray-800', 'shadow');
+                btn.classList.remove('text-gray-400');
+
+                const targetTab = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+                const tabEl = document.getElementById(targetTab);
+                if (tabEl) tabEl.classList.remove('hidden');
+            });
+        });
+
+        // Export PNG functionality using html2canvas
+        const downloadBtn = document.getElementById('download-btn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', async () => {
+                showToast("Generando tarjeta en alta resolución...", "fa-spinner fa-spin");
+
+                try {
+                    await document.fonts.ready;
+                    const canvas = await html2canvas(playerCard, {
+                        scale: 1,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: null,
+                        logging: false
+                    });
+
+                    const image = canvas.toDataURL("image/png");
+                    const link = document.createElement('a');
+                    link.download = `FGC_ID_${(state.gamertag || 'PLAYER').replace(/\s+/g, '_')}.png`;
+                    link.href = image;
+                    link.click();
+
+                    showToast("¡Tarjeta descargada con éxito!");
+                } catch (err) {
+                    console.error(err);
+                    showToast("Error al exportar la imagen", "fa-triangle-exclamation");
+                }
+            });
+        }
+
+        // Reset Handler
+        const resetBtn = document.getElementById('reset-btn');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                if(confirm("¿Restablecer todos los datos a la configuración inicial?")) {
+                    location.reload();
+                }
+            });
+        }
+
+        // Helpers
+        function hexToRgb(hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 15, g: 23, b: 42 };
+        }
+
+        function showToast(message, icon = "fa-circle-check") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            if (!toast || !toastMsg) return;
+
+            toastMsg.innerHTML = `<i class="fa-solid ${icon} text-sm"></i> ${message}`;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 3000);
+        }
+
+        function resizePreviewCard() {
+            const holder = document.getElementById('card-scale-holder');
+            if (!holder || !playerCard) return;
+            const containerWidth = holder.offsetWidth;
+            const targetWidth = 1200;
+
+            if (containerWidth < targetWidth) {
+                const scale = containerWidth / targetWidth;
+                playerCard.style.transform = `scale(${scale})`;
+                playerCard.style.transformOrigin = 'center center';
+            } else {
+                playerCard.style.transform = 'scale(1)';
+            }
+        }
+
+        window.addEventListener('resize', resizePreviewCard);
+
+        // INITIALIZATION
+        window.onload = () => {
+            initInputListeners();
+            initQuickGames();
+            initThemePresets();
+            renderMainsEditList();
+            updateColorInputDisplays();
+            renderCard();
+            resizePreviewCard();
+        };
+    </script>
+</body>
+</html>
